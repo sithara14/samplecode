@@ -11,12 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-I. Third Smallest Dice - Given seven dices that are all rolled at the same time, what value would the dice, with the third smallest number of the seven dices, hold?
+*I. Third Smallest Dice*: Given seven dices that are all rolled at the same time, what value would the dice, with the third smallest number of the seven dices, hold?
 
 ```{r}
 library(dplyr)                             # for functions      
 library(ggplot2)                           # for data visualization  
-library(fivethirtyeight)                   # data 
 
 # Function: Rolls 7 dices to return third smallest dice
 seven.dice <- function() {
@@ -52,21 +51,21 @@ for (i in 1:10000) {                        # generate random inputs
     
     count[5] = count[5] + 1   
     
-  } else if (y == 6) {        
+  } else {        
     
     count[6] = count[6] + 1 
   }  
 }
 
-
-p <- count / 10000                          # each face number probability
+# Probability of each face number
+p <- count / 10000                          
 print(paste("Probability of", face, ":", p))
 
-# line chart of pdf
+# Line chart of pdf
 dice_pdf <- data.frame(face,p)
 ggplot(dice_pdf, aes(x=face, y=p)) + geom_line(linetype="dashed", color="blue", size= 2) + geom_point(color="red", size=3)
 
-# line chart of cdf
+# Line chart of cdf
 p[2] = p[1] + p[2]
 p[3] = p[3] + p[2]
 p[4] = p[4] + p[3]
@@ -75,49 +74,4 @@ p[6] = p[5] + p[6]
 dice_cdf <- data.frame(face,p)
 ggplot(dice_cdf, aes(x=face, y=p)) +geom_line(linetype="dashed", color="blue", size= 2) + geom_point(color="red", size=3)
 ```
-II. Expectation
 
-E = # of rolls / # of trials                # formula
-
-```{r}
-set.seed(2020)
-rolls = NULL
-for (i in 1:100000){
-  f1 = FALSE
-  f2 = FALSE
-  f3 = FALSE
-  f4 = FALSE
-  f5 = FALSE
-  f6 = FALSE
-  count = 0
-  while (!f1 || !f2 || !f3 || !f4 || !f5 || !f6){
-  dice <- sample(1:6, size = 1, replace = TRUE)
-  count = count + 1
-  if (dice == 1){
-    f1 = TRUE
-  }
-  if (dice == 2){
-    f2 = TRUE
-  }
-  if (dice == 3){
-    f3 = TRUE
-  }
-  if (dice == 4){
-    f4 = TRUE
-  }
-  if (dice == 5){
-    f5 = TRUE
-  }
-  if (dice == 6){
-    f6 = TRUE
-  }
-  }
-  rolls <- c(rolls, count)
-}
-Emc <- sum(rolls) / 100000
-print(Emc)
-
-# construct histogram
-rolls_df <- data.frame(rolls)
-ggplot(rolls_df, aes(x=rolls)) + geom_histogram(binwidth = 3)
-```
