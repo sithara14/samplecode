@@ -11,71 +11,60 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-I. Third Smallest Dice
+I. Third Smallest Dice - Given seven dices that are all rolled at the same time, what value would the dice, with the third smallest number of the seven dices, hold?
 
 ```{r}
-library(dplyr)                             # generate random inputs            
-library(ggplot2)                           # generate random inputs  
-library(fivethirtyeight)                   # generate random inputs  
+library(dplyr)                             # for functions      
+library(ggplot2)                           # for data visualization  
+library(fivethirtyeight)                   # data 
 
-# function of 7 dices
-seven.dice <- function(){
+# Function: Rolls 7 dices to return third smallest dice
+seven.dice <- function() {
   dice <- sample(1:6, size = 7, replace = TRUE)
   sort(dice, decreasing = FALSE)
   return(dice[3])
 }
 
 # Monte Carlo
-face <- 1:6
-count <- c(0,0,0,0,0,0)
+face <- 1:6                                 # dice face numbers
+count <- c(0,0,0,0,0,0)                     # aggregate results
 set.seed(100)
-for (i in 1:10000){                        # generate random inputs
+
+for (i in 1:10000) {                        # generate random inputs
   y <- seven.dice()
-  if (y == 1){                             # deterministic computation
-    count[1] = count[1] + 1                # aggregate results
-  }
+  if (y == 1) {                             # deterministic computation
+    
+    count[1] = count[1] + 1                 
+    
+  } else if (y == 2) {     
+    
+    count[2] = count[2] + 1     
+    
+  } else if (y == 3) { 
+    
+    count[3] = count[3] + 1
+    
+  } else if (y == 4) {     
+    
+    count[4] = count[4] + 1    
+    
+  } else if (y == 5) {  
+    
+    count[5] = count[5] + 1   
+    
+  } else if (y == 6) {        
+    
+    count[6] = count[6] + 1 
+  }  
 }
-set.seed(100)
-for (i in 1:10000){                        # generate random inputs
-  y <- seven.dice()
-  if (y == 2){                             # deterministic computation
-    count[2] = count[2] + 1                # aggregate results
-  }
-}
-set.seed(100)
-for (i in 1:10000){                        # generate random inputs
-  y <- seven.dice()
-  if (y == 3){                             # deterministic computation
-    count[3] = count[3] + 1                # aggregate results
-  }
-}
-set.seed(100)
-for (i in 1:10000){                        # generate random inputs
-  y <- seven.dice()
-  if (y == 4){                             # deterministic computation
-    count[4] = count[4] + 1                # aggregate results
-  }
-}
-set.seed(100)
-for (i in 1:10000){                        # generate random inputs
-  y <- seven.dice()
-  if (y == 5){                             # deterministic computation
-    count[5] = count[5] + 1                # aggregate results
-  }
-}
-set.seed(100)
-for (i in 1:10000){                        # generate random inputs
-  y <- seven.dice()
-  if (y == 6){                             # deterministic computation
-    count[6] = count[6] + 1                # aggregate results
-  }
-}
-p <- count / 10000
-print(p)
+
+
+p <- count / 10000                          # each face number probability
+print(paste("Probability of", face, ":", p))
 
 # line chart of pdf
 dice_pdf <- data.frame(face,p)
-ggplot(dice_pdf, aes(x=face, y=p)) +geom_line(linetype="dashed", color="blue", size= 2) + geom_point(color="red", size=3)
+ggplot(dice_pdf, aes(x=face, y=p)) + geom_line(linetype="dashed", color="blue", size= 2) + geom_point(color="red", size=3)
 
 # line chart of cdf
 p[2] = p[1] + p[2]
@@ -86,7 +75,7 @@ p[6] = p[5] + p[6]
 dice_cdf <- data.frame(face,p)
 ggplot(dice_cdf, aes(x=face, y=p)) +geom_line(linetype="dashed", color="blue", size= 2) + geom_point(color="red", size=3)
 ```
-II. Expection
+II. Expectation
 
 E = # of rolls / # of trials                # formula
 
@@ -131,56 +120,4 @@ print(Emc)
 # construct histogram
 rolls_df <- data.frame(rolls)
 ggplot(rolls_df, aes(x=rolls)) + geom_histogram(binwidth = 3)
-```
-
-II. Births in US from 2000 to 2014
-
-
-```{r}
-library(fivethirtyeight)
-
-# Cases and Variables
-head(US_births_2000_2014)
-
-# How much data do we have? 
-dim(US_births_2000_2014)
-
-# What are the variable names? 
-names(US_births_2000_2014)
-
-# Filter 2014 births
-births_2014 <- US_births_2000_2014 %>% 
-    filter(year == 2014)
-
-# Variability in Births
-ggplot(births_2014, aes(births)) + geom_bar(fill = "red")
-
-# Births VS Data in 2014
-ggplot(births_2014, aes(x = as.Date(date), y = births)) + geom_point(alpha = 0.5)
-# Interpretation: There is little correlation between births and date in 2014
-
-# Distinction among Groups
-ggplot(births_2014, aes(x = as.Date(date), y = births, color = day_of_week)) + geom_point(alpha = 0.5)
-# Group 1: Weekdays; Group 2: Sat & Sun
-# The exceptions are likely holidays, which is why there are less births those days like the weekend days or Group 2. Overall, Saturdays and Sundays tend to have less births than the rest of the weekdays. Births in 2014 seem to climax in late summer and early fall.
-
-all_years <- full_join(US_births_1994_2003, US_births_2000_2014)
-## Joining, by = c("year", "month", "date_of_month", "date", "day_of_week", "births")
-
-# Birth Trends across all years
-ggplot(data = all_years, aes(x = year, y = births, group = year)) +
-    geom_boxplot()
-ggplot(all_years, aes(x = as.Date(date), y = births, color = month)) + geom_point(alpha = 0.5)
-# Each year, births seem to climax in late summer and early fall. Births, over the years, seem to increase until late 2000s and then started to decrease into the 2010s.
-
-# Friday and Friday the 13th
-friday_only <- all_years %>% 
-    filter(day_of_week == 'Fri')
-
-friday_only <- friday_only %>%
-  mutate(fri_13 = (date_of_month == 13))
-
-ggplot(data = friday_only, aes(x = as.Date(date), y = births, color = fri_13)) + geom_point(alpha = 0.4)
-
-# Births among Fridays that fall on and off the 13th seem similar. I do not see any evidence of superstition.
 ```
